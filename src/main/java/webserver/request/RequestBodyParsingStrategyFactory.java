@@ -11,7 +11,7 @@ import static webserver.enums.MediaType.APPLICATION_FORM_URLENCODED;
 
 public final class RequestBodyParsingStrategyFactory {
     public static RequestBodyParsingStrategy create(String contentType, String contents) {
-        if (APPLICATION_FORM_URLENCODED.value().equals(contentType)) {
+        if (APPLICATION_FORM_URLENCODED.value().contains(contentType)) {
             return new FormUrlEncodedParsingStrategy(contents);
         }
         throw new IllegalArgumentException("존재하지 않는 미디어 타입입니다.");
@@ -22,6 +22,7 @@ public final class RequestBodyParsingStrategyFactory {
         private static final String FIELD_DELIMITER = "=";
         private static final int KEY_INDEX = 0;
         private static final int VALUE_INDEX = 1;
+        private static final int KEY_VAL_LENGTH = 2;
 
         private final String contents;
         private final Map<String, Object> requestBody;
@@ -36,7 +37,13 @@ public final class RequestBodyParsingStrategyFactory {
             String[] split = this.contents.split(ENTRY_DELIMITER);
             Arrays.stream(split)
                     .map(s -> s.split(FIELD_DELIMITER))
-                    .forEach(regex -> requestBody.put(regex[KEY_INDEX], regex[VALUE_INDEX]));
+                    .forEach(regex -> {
+                        if (regex.length < KEY_VAL_LENGTH) {
+                            requestBody.put(regex[KEY_INDEX], null);
+                            return;
+                        }
+                        requestBody.put(regex[KEY_INDEX], regex[VALUE_INDEX]);
+                    });
         }
 
         @Override

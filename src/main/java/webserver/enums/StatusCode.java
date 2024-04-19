@@ -4,6 +4,8 @@ public enum StatusCode {
     OK(200, StatusCode.Series.SUCCESSFUL, "OK"),
     CREATED(201, StatusCode.Series.SUCCESSFUL, "Created"),
     MOVED_TEMPORARILY(302, StatusCode.Series.REDIRECTION, "Moved Temporarily"),
+    BAD_REQUEST(400, Series.CLIENT_ERROR, "Bad Request"),
+    FORBIDDEN(403, Series.CLIENT_ERROR, "Forbidden"),
     NOT_FOUND(404, StatusCode.Series.CLIENT_ERROR, "Not Found"),
     CONFLICT(409, StatusCode.Series.CLIENT_ERROR, "Conflict"),
     ;

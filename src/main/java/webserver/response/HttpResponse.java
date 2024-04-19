@@ -1,29 +1,51 @@
 package webserver.response;
 
+import webserver.common.Cookie;
 import webserver.common.HttpHeaders;
 import webserver.common.HttpVersion;
 import webserver.enums.MediaType;
 import webserver.enums.StatusCode;
-import webserver.request.HttpRequest;
 
 public final class HttpResponse {
-    public static final String DEFAULT_ENTRY = "/index.html";
-    private static final String EMPTY = "";
+    private static final String ZERO_STRING = "";
     private static final String NOT_FOUND_MESSAGE = "NOT FOUND";
 
-    private final HttpRequest httpRequest;
     private StatusLine statusLine;
     private HttpHeaders headers;
     private ResponseBody responseBody;
+    private Cookie cookie;
 
-    public HttpResponse(HttpRequest httpRequest) {
-        this.httpRequest = httpRequest;
-        this.headers = new HttpHeaders(EMPTY);
-        this.responseBody = new ResponseBody(EMPTY.getBytes());
+    public HttpResponse() {
+        this.headers = new HttpHeaders(ZERO_STRING);
+        this.responseBody = new ResponseBody(ZERO_STRING.getBytes());
+        this.cookie = new Cookie();
+    }
+
+    public void setCookie(Cookie cookie) {
+        this.cookie = cookie;
     }
 
     public void setStatusOK(byte[] contents, String contentType) {
         setStatusLine(HttpVersion.HTTP_1_1_RAW, StatusCode.OK);
+        setHeader(HttpHeaders.CONTENT_TYPE, contentType);
+        setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(contents.length));
+        setResponseBody(contents);
+    }
+
+    public void setMovedTemporarily(String location) {
+        setStatusLine(HttpVersion.HTTP_1_1_RAW, StatusCode.MOVED_TEMPORARILY);
+        setHeader(HttpHeaders.LOCATION, location);
+    }
+
+    public void setBadRequest(byte[] contents, String contentType) {
+        setStatusLine(HttpVersion.HTTP_1_1_RAW, StatusCode.BAD_REQUEST);
+        setHeader(HttpHeaders.CONTENT_TYPE, contentType);
+        setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(contents.length));
+        setResponseBody(contents);
+    }
+
+    public void setForbidden(byte[] contents, String contentType) {
+        setStatusLine(HttpVersion.HTTP_1_1_RAW, StatusCode.FORBIDDEN);
         setHeader(HttpHeaders.CONTENT_TYPE, contentType);
         setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(contents.length));
         setResponseBody(contents);
@@ -34,11 +56,6 @@ public final class HttpResponse {
         setHeader(HttpHeaders.CONTENT_TYPE, MediaType.TEXT_PLAIN.value());
         setHeader(HttpHeaders.CONTENT_LENGTH, String.valueOf(NOT_FOUND_MESSAGE.getBytes().length));
         setResponseBody(NOT_FOUND_MESSAGE.getBytes());
-    }
-
-    public void setMovedTemporarily(String location) {
-        setStatusLine(HttpVersion.HTTP_1_1_RAW, StatusCode.MOVED_TEMPORARILY);
-        setHeader(HttpHeaders.LOCATION, location);
     }
 
     public void setConflict(byte[] contents, String contentType) {
@@ -74,5 +91,9 @@ public final class HttpResponse {
 
     public byte[] contents() {
         return responseBody().contents();
+    }
+
+    public Cookie cookie() {
+        return this.cookie;
     }
 }

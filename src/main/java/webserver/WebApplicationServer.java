@@ -3,13 +3,16 @@ package webserver;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import webserver.common.Path;
-import webserver.controller.GetUserJoinController;
-import webserver.controller.PostUserJoinController;
-import webserver.controller.RequestMapper;
+import webserver.common.SessionManager;
+import webserver.controller.*;
 import webserver.enums.Method;
+import webserver.request.HttpRequest;
+import webserver.response.HttpResponse;
 
 import java.net.ServerSocket;
 import java.net.Socket;
+
+import static webserver.controller.RequestMapper.Entry.DEFAULT_ENTRY;
 
 public class WebApplicationServer {
     private static final Logger logger = LoggerFactory.getLogger(WebApplicationServer.class);
@@ -31,6 +34,15 @@ public class WebApplicationServer {
     private static void registerController() {
         RequestMapper.register(Method.GET, Path.of("/user/create"), new GetUserJoinController());
         RequestMapper.register(Method.POST, Path.of("/user/create"), new PostUserJoinController());
+        RequestMapper.register(Method.POST, Path.of("/user/login"), new PostUserLoginController());
+        RequestMapper.register(Method.GET, Path.of("/user/list"), new GetUserListController());
+        RequestMapper.register(Method.GET, Path.of("/user/login.html"), (HttpRequest req, HttpResponse res) -> {
+            if (SessionManager.findSession(req.sessionId()).isPresent()) {
+                res.setMovedTemporarily(DEFAULT_ENTRY);
+                return;
+            }
+            RequestMapper.staticController().doService(req, res);
+        });
     }
 
     private static void acceptClient(ServerSocket listenSocket) throws Exception {

@@ -4,10 +4,10 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class UserDto {
-    private static final String userIdField = "userId";
-    private static final String passwordField = "password";
-    private static final String nameField = "name";
-    private static final String emailField = "email";
+    public static final String userIdField = "userId";
+    public static final String passwordField = "password";
+    public static final String nameField = "name";
+    public static final String emailField = "email";
 
     private final String userId;
     private final String password;

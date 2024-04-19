@@ -18,6 +18,12 @@ public final class RequestLine {
     private Uri uri;
     private HttpVersion httpVersion;
 
+    public RequestLine(RequestLine requestLine, Uri uri) {
+        this.method = requestLine.method;
+        this.uri = uri;
+        this.httpVersion = requestLine.httpVersion;
+    }
+
     public RequestLine(BufferedReader br) {
         try {
             (new Parser(br)).parse();

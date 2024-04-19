@@ -1,22 +1,30 @@
 package webserver.request;
 
 import utils.IOUtils;
+import webserver.common.Cookie;
 import webserver.common.HttpHeaders;
 import webserver.common.Path;
+import webserver.common.Uri;
+import webserver.controller.RequestMapper.Entry;
 import webserver.enums.Method;
 
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.util.Arrays;
 import java.util.Map;
+import java.util.Optional;
+
+import static webserver.common.Cookie.JAVA_SESSION_KEY;
 
 public final class HttpRequest {
     private static final String ZERO_STRING = "";
     private static final String ZERO_INTEGER = "0";
 
-    private final RequestLine requestLine;
+    private RequestLine requestLine;
     private final HttpHeaders httpHeaders;
+    private final Cookie cookie;
     private final RequestBody requestBody;
     private Object attribute;
 
@@ -24,12 +32,14 @@ public final class HttpRequest {
         this.requestLine = null;
         this.httpHeaders = null;
         this.requestBody = null;
+        this.cookie = null;
     }
 
     public HttpRequest(InputStream in) throws IOException {
         BufferedReader br = new BufferedReader(new InputStreamReader(in));
         this.requestLine = new RequestLine(br);
         this.httpHeaders = new HttpHeaders(br);
+        this.cookie = new Cookie(headers().get(HttpHeaders.COOKIE).orElse(ZERO_STRING));
         if (!isRequestBodyAcceptable()) {
             this.requestBody = new RequestBody();
             return;
@@ -44,12 +54,9 @@ public final class HttpRequest {
         return method.isRequestBodyAcceptable();
     }
 
-    public Object attribute() {
-        return attribute;
-    }
-
-    public void setAttribute(Object attribute) {
-        this.attribute = attribute;
+    public boolean requiresInitialCookie(String path) {
+        return !cookie().all().containsKey(Cookie.JAVA_SESSION_KEY) &&
+                Arrays.stream(Entry.STATIC_SORTED_ENTRY).noneMatch(path::startsWith);
     }
 
     public String accept() {
@@ -72,7 +79,19 @@ public final class HttpRequest {
         return this.httpHeaders;
     }
 
-    public RequestBody requestBody() {
+    public Cookie cookie() {
+        return this.cookie;
+    }
+
+    public String sessionId() {
+        return this.cookie.all().getOrDefault(JAVA_SESSION_KEY, ZERO_STRING);
+    }
+
+    public void putCookie(String key, String value) {
+        this.cookie.put(key, value);
+    }
+
+    public RequestBody body() {
         return this.requestBody;
     }
 
@@ -98,5 +117,17 @@ public final class HttpRequest {
 
     public String httpVersion() {
         return this.requestLine.httpVersion().raw();
+    }
+
+    public Optional<Object> getAttribute() {
+        return Optional.ofNullable(this.attribute);
+    }
+
+    public void setAttribute(Object attribute) {
+        this.attribute = attribute;
+    }
+
+    public void redirectUri(Uri uri) {
+        this.requestLine = new RequestLine(this.requestLine, uri);
     }
 }

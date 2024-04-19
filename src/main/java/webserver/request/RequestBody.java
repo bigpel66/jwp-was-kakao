@@ -20,6 +20,14 @@ public final class RequestBody {
         return this.contents;
     }
 
+    public Object get(String key) {
+        return this.contents.get(key);
+    }
+
+    public boolean contains(String key) {
+        return this.contents.containsKey(key) && get(key) != null;
+    }
+
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;

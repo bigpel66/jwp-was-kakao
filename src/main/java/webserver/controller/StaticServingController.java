@@ -12,20 +12,20 @@ import static webserver.enums.MediaType.TEXT_HTML;
 
 public class StaticServingController implements Controller {
     @Override
-    public void doService(HttpRequest req, HttpResponse response) {
+    public void doService(HttpRequest req, HttpResponse res) {
         try {
             byte[] body = getBody(req);
             String contentType = getContentType(req);
-            response.setStatusOK(body, contentType);
+            res.setStatusOK(body, contentType);
         } catch (Exception ex) {
-            response.setNotFound();
+            res.setNotFound();
         }
     }
 
     private static byte[] getBody(HttpRequest httpRequest) throws IOException, URISyntaxException {
         String filePath = httpRequest.pathValue();
         if (isFileFromTemplates(filePath)) {
-            return loadFileFromTemplates(filePath, httpRequest.attribute());
+            return loadFileFromTemplates(filePath, httpRequest.getAttribute().orElse(new Object()));
         } else if (isFileFromStatic(filePath)) {
             return loadFileFromStatic(filePath);
         }

@@ -39,3 +39,15 @@
 * [X] StatusLine 객체를 만든다.
 * [X] ResponseBody 객체를 만든다.
 * [X] StatusLine과 HttpHeaders와 ResponseBody를 가진 HttpResponse를 만든다.
+* [X] Controller 응답 처리를 위한 글로벌 컨트롤러 어드바이스를 만든다.
+* [X] PostUserLoginController를 만들어서 로그인을 처리한다.
+* [X] CustomException을 갖는다.
+    * ConflictException - 중복 등의 충돌이 있는 경우
+    * BadRequestException - 요청 포맷에 문제가 있는 경우
+    * ForbiddenException - 허용되지 않은 접근인 경우
+    * NotFoundException - 자원을 찾을 수 없는 경우
+* [X] Cookie를 구현하고, Cookie를 읽은 뒤 Set-Cookie를 수행한다.
+* [X] GlobalControllerAdvice의 처리에서 초기 JSESSION을 주입한다.
+* [X] 템플릿 엔진을 적용해야하는 스크립트를 수정한다.
+* [X] Session과 SessionManager를 구현한다.
+* [X] 로그인 여부에 따른 로그인 페이지 리다이렉션을 처리한다.

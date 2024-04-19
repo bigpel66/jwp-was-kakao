@@ -3,21 +3,22 @@ package webserver.controller;
 import db.DataBase;
 import model.User;
 import webserver.dto.UserDto;
-import webserver.enums.MediaType;
+import webserver.exception.ConflictException;
 import webserver.request.HttpRequest;
 import webserver.response.HttpResponse;
 
-public class PostUserJoinController implements Controller {
+import static webserver.controller.RequestMapper.Entry.DEFAULT_ENTRY;
+
+public final class PostUserJoinController implements Controller {
     @Override
-    public void doService(HttpRequest req, HttpResponse response) {
+    public void doService(HttpRequest req, HttpResponse res) {
         UserDto userDto = UserDto.from(req.contents());
         User user = User.from(userDto);
         User userOnDataBase = DataBase.findUserById(user.getUserId());
         if (userOnDataBase != null) {
-            response.setConflict("DUPLICATED".getBytes(), MediaType.TEXT_PLAIN.value());
-            return;
+            throw new ConflictException("DUPLICATED");
         }
         DataBase.addUser(user);
-        response.setMovedTemporarily(HttpResponse.DEFAULT_ENTRY);
+        res.setMovedTemporarily(DEFAULT_ENTRY);
     }
 }

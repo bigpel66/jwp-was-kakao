@@ -3,6 +3,7 @@ package webserver.request;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
 import webserver.common.HttpHeaders;
+import webserver.common.Uri;
 
 import java.io.*;
 
@@ -19,6 +20,28 @@ class HttpRequestTest {
         BufferedReader br = new BufferedReader(new InputStreamReader(in2));
         assertThat(httpRequest.requestLine()).isEqualTo(new RequestLine(br));
         assertThat(httpRequest.headers()).isEqualTo(new HttpHeaders(br));
-        assertThat(httpRequest.requestBody()).isNotNull();
+        assertThat(httpRequest.body()).isNotNull();
+    }
+
+    @Test
+    void Attribute를_설정하고_읽을_수_있다() throws IOException {
+        String request = "GET /index.html HTTP/1.1\r\nHost: localhost:8080\r\nConnection: keep-alive\r\nAccept: */*\r\n\r\nSampleContents";
+        InputStream in = new ByteArrayInputStream(request.getBytes());
+        HttpRequest httpRequest = new HttpRequest(in);
+        String attribute = "attribute";
+        httpRequest.setAttribute(attribute);
+        assertThat(httpRequest.getAttribute().isPresent()).isTrue();
+        assertThat(httpRequest.getAttribute().get()).isEqualTo(attribute);
+    }
+
+    @Test
+    void Uri를_변경할_수_있다() throws IOException {
+        String request = "GET /index.html HTTP/1.1\r\nHost: localhost:8080\r\nConnection: keep-alive\r\nAccept: */*\r\n\r\nSampleContents";
+        InputStream in = new ByteArrayInputStream(request.getBytes());
+        HttpRequest httpRequest = new HttpRequest(in);
+        assertThat(httpRequest.pathValue()).isEqualTo("/index.html");
+        String changedPath = "/changed";
+        httpRequest.redirectUri(new Uri(changedPath));
+        assertThat(httpRequest.pathValue()).isEqualTo(changedPath);
     }
 }

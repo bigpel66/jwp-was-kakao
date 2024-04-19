@@ -35,6 +35,10 @@ public class User {
         return email;
     }
 
+    public boolean isLegitimate() {
+        return !userId.isBlank() && !password.isBlank() && !name.isBlank() && !email.isBlank();
+    }
+
     @Override
     public String toString() {
         return "User [userId=" + userId + ", password=" + password + ", name=" + name + ", email=" + email + "]";

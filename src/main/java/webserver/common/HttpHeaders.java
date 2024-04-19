@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.Optional;
 
 public final class HttpHeaders {
+    public static final String COOKIE = "Cookie";
     public static final String ACCEPT = "Accept";
     public static final String LOCATION = "Location";
     public static final String CONTENT_TYPE = "Content-Type";
@@ -32,6 +33,10 @@ public final class HttpHeaders {
 
     public HttpHeaders(Map<String, String> headers) {
         this.headers = headers;
+    }
+
+    public Optional<String> cookie() {
+        return get(COOKIE);
     }
 
     public Optional<String> accept() {
@@ -87,8 +92,8 @@ public final class HttpHeaders {
     public boolean equals(Object o) {
         if (this == o) return true;
         if (o == null || getClass() != o.getClass()) return false;
-        HttpHeaders headers1 = (HttpHeaders) o;
-        return Objects.equals(headers, headers1.headers);
+        HttpHeaders that = (HttpHeaders) o;
+        return Objects.equals(headers, that.headers);
     }
 
     @Override

@@ -12,11 +12,15 @@ import java.util.Map;
 import java.util.Objects;
 
 public final class RequestMapper {
-    private static final String DEFAULT_FILE_SERVE_PATH = "thisisdefaultroutepath";
     private static final Map<Entry, Controller> map = new HashMap<>();
+    private static final ControllerAdvice globalControllerAdvice = new GlobalControllerAdvice();
 
     static {
-        register(Method.GET, Path.of(DEFAULT_FILE_SERVE_PATH), new StaticServingController());
+        register(Method.GET, Path.of(Entry.STATIC_ENTRY), new StaticServingController());
+    }
+
+    public static Controller staticController() {
+        return map.get(new Entry(Method.GET, Path.of(Entry.STATIC_ENTRY)));
     }
 
     public static void register(Method method, Path path, Controller controller) {
@@ -28,15 +32,25 @@ public final class RequestMapper {
     }
 
     public static void doService(HttpRequest req, HttpResponse res) throws IOException, URISyntaxException {
-        Entry entry = new Entry(req.method(), req.path());
-        if (map.containsKey(entry)) {
-            map.get(entry).doService(req, res);
-            return;
-        }
-        map.get(new Entry(Method.GET, Path.of(DEFAULT_FILE_SERVE_PATH))).doService(req, res);
+        Controller controller = controller(req);
+        globalControllerAdvice.accept(req, res, controller);
     }
 
-    private static final class Entry {
+    private static Controller controller(HttpRequest req) {
+        Entry entry = new Entry(req.method(), req.path());
+        if (map.containsKey(entry)) {
+            return map.get(entry);
+        }
+        return map.get(new Entry(Method.GET, Path.of(Entry.STATIC_ENTRY)));
+    }
+
+    public static final class Entry {
+        public static final String DEFAULT_ENTRY = "/index.html";
+        public static final String STATIC_ENTRY = "thisisdefaultroutepath";
+        public static final String[] STATIC_SORTED_ENTRY = {"/css", "/js", "/fonts", "images"};
+        public static final String LOGIN_ENTRY = "/user/login.html";
+        public static final String LOGIN_FAILED_ENTRY = "/user/login_failed.html";
+        public static final String USER_LIST_ENTRY = "/user/list.html";
         private final Method method;
         private final Path path;
 
